@@ -1,0 +1,52 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [email, setEmail] = useState(''), [password, setPassword] = useState('');
+  const [role, setRole] = useState('user'), [token, setToken] = useState('');
+  const [stores, setStores] = useState([]);
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    await axios.post('http://localhost:3001/signup', { email, password, name: "Demo", role });
+    alert('Signup successful');
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const res = await axios.post('http://localhost:3001/login', { email, password });
+    setToken(res.data.token); setRole(res.data.role);
+  };
+
+  useEffect(() => {
+    axios.get('http://localhost:3001/stores').then(res => setStores(res.data));
+  }, []);
+
+  return (
+    <div>
+      <form onSubmit={handleSignup}>
+        <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email" />
+        <input value={password} onChange={e => setPassword(e.target.value)} placeholder="password" type="password" />
+        <select value={role} onChange={e => setRole(e.target.value)}>
+          <option value="user">User</option>
+          <option value="owner">Owner</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button type="submit">Sign Up</button>
+      </form>
+      <form onSubmit={handleLogin}>
+        <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email" />
+        <input value={password} onChange={e => setPassword(e.target.value)} placeholder="password" type="password" />
+        <button type="submit">Login</button>
+      </form>
+      <div>
+        <h3>Stores</h3>
+        <ul>
+          {stores.map(s => <li key={s.id}>{s.name} - {s.address}</li>)}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default App;
